@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Simulator: Rework</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="language-selector">
+        <div id="language-buttons">
+            <button class="lang-btn active" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="ru">RU</button>
+            <button class="lang-btn" data-lang="es">ES</button>
+            <button class="lang-btn" data-lang="other">Other</button>
+        </div>
+        <div id="other-lang-input-container" style="display: none;">
+            <input type="text" id="other-lang-input" placeholder="Language...">
+            <button id="other-lang-submit">OK</button>
+        </div>
+        <div id="translation-loader" style="display: none;">Translating...</div>
+    </div>
+
+    <div id="three-canvas"></div>
+    <div id="transition-overlay"></div>
+
+    <div id="splash-screen">
+        <h1 class="glitch" data-text="Admin Simulator: Rework" data-key="splashTitle">Admin Simulator: Rework</h1>
+    </div>
+
+    <div id="main-menu">
+        <h1 class="menu-title" data-key="mainMenuTitle">Admin Simulator: Rework</h1>
+        <nav class="menu-nav">
+            <button id="start-game-btn" class="menu-button" data-key="startGame">Start Game</button>
+            <button id="community-btn" class="menu-button" data-key="community">Community</button>
+            <button id="mods-btn" class="menu-button" data-key="mods">Mods</button>
+            <button id="settings-btn" class="menu-button disabled" disabled data-key="settings">Settings <span class="coming-soon" data-key="comingSoonCustom">(Coming Soon! <3)</span></button>
+        </nav>
+    </div>
+
+    <div id="gamemode-menu" class="menu-container" style="display: none;">
+        <h1 class="menu-title" data-key="chooseGamemode">Choose Gamemode</h1>
+        <nav class="menu-nav">
+            <button id="sandbox-btn" class="menu-button" data-key="sandbox">SandBox</button>
+            <button class="menu-button disabled" disabled data-key="storyMode">StoryMode <span class="coming-soon" data-key="comingSoon">(Coming soon!)</span></button>
+            <button class="menu-button disabled" disabled data-key="haosMode">HaosMode <span class="coming-soon" data-key="comingSoon">(Coming soon!)</span></button>
+            <button id="gamemode-back-btn" class="menu-button secondary" data-key="back">Back</button>
+        </nav>
+    </div>
+
+    <div id="customize-menu" class="menu-container" style="display: none;">
+        <h1 class="menu-title" data-key="customizeGame">Customize your Game</h1>
+        <div class="settings-container">
+             <div class="setting-item">
+                <label for="bosses-toggle" data-key="bosses">Bosses <span class="coming-soon" data-key="comingSoon">(Coming soon!)</span></label>
+                <label class="switch">
+                    <input type="checkbox" id="bosses-toggle" disabled>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label for="violators-toggle" data-key="violators">Violators</label>
+                <label class="switch">
+                    <input type="checkbox" id="violators-toggle" checked>
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <div class="setting-item">
+                <label for="username-input" data-key="username">Username</label>
+                <input type="text" id="username-input" class="username-input" value="Admin">
+            </div>
+        </div>
+        <nav class="menu-nav">
+             <button id="start-custom-game-btn" class="menu-button" data-key="startGame">Start Game</button>
+             <button id="customize-back-btn" class="menu-button secondary" data-key="back">Back</button>
+        </nav>
+    </div>
+
+    <div id="chat-screen" class="menu-container" style="display: none;">
+        <div class="chat-layout">
+            <!-- Left sidebar: Chat channels -->
+            <div class="chat-sidebar">
+                <div class="sidebar-header">
+                    <h2 data-key="channels">Channels</h2>
+                </div>
+                <ul class="chat-list">
+                    <!-- Channels will be generated here -->
+                    <li class="loading-message" data-key="generatingChannels">Generating channels...</li>
+                </ul>
+            </div>
+    
+            <!-- Main chat area -->
+            <div class="chat-main">
+                <div class="chat-header">
+                    <h3 id="current-channel-name"># General</h3>
+                    <div class="header-buttons">
+                        <button id="settings-panel-btn" class="menu-button" data-key="settingsPanel">Settings</button>
+                        <button id="admin-panel-btn" class="menu-button" data-key="adminPanel">Admin Panel</button>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chat-messages-container">
+                    <!-- Messages will be added here -->
+                    <li class="system-message" style="display: none;"></li>
+                </div>
+                <div class="typing-indicator-container" id="typing-indicator">
+                    <!-- Typing indicator will appear here -->
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Type a message..." data-key="typeMessage" autocomplete="off">
+                    <button id="send-message-btn" data-key="send">Send</button>
+                </div>
+            </div>
+    
+            <!-- Right sidebar: Participants -->
+            <div class="participants-sidebar">
+                 <div class="sidebar-header">
+                    <h3 id="participants-count" data-key="members">Members - 0</h3>
+                </div>
+                <ul id="participants-list" class="participants-list">
+                    <!-- Participants will be added here -->
+                    <li class="loading-message" data-key="generatingUsers">Generating users...</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="community-screen" class="menu-container" style="display: none;">
+        <div class="community-layout">
+            <div class="community-header">
+                <button id="community-back-btn" class="menu-button secondary" data-key="back">Back</button>
+                <div class="search-container">
+                    <input type="text" id="community-search-input" placeholder="Search by title..." data-key="searchByTitle" autocomplete="off">
+                    <button id="community-search-btn" class="no-sound">🔍</button>
+                </div>
+                <div class="community-actions">
+                    <button id="community-notifications-btn" class="menu-button">🔔</button>
+                    <button id="community-create-post-btn" class="menu-button" data-key="createPost">Create Post</button>
+                </div>
+            </div>
+            <div id="community-feed" class="community-feed">
+                <!-- Posts will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-panel-modal" class="modal-container" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 data-key="adminPanel">Admin Panel</h2>
+                <button id="close-admin-panel-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <ul id="admin-panel-participants-list">
+                    <!-- Participants for admin actions will be listed here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Panel Modal -->
+    <div id="settings-panel-modal" class="modal-container" style="display: none;">
+        <div class="modal-content settings-modal">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button id="close-settings-panel-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="settings-panel-content">
+                <!-- Settings content will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="create-post-modal" class="modal-container" style="display: none;">
+        <div class="modal-content post-modal">
+            <div class="modal-header">
+                <h2 data-key="createNewPost">Create New Post</h2>
+                <button id="close-create-post-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="post-title-input" placeholder="Post Title..." data-key="postTitlePlaceholder" class="post-title-input">
+                <div class="rich-text-editor">
+                    <div class="editor-toolbar">
+                        <select id="editor-font-select" title="Font">
+                            <option value="Arial">Arial</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Comic Sans MS">Comic Sans MS</option>
+                            <option value="Impact">Impact</option>
+                            <option value="Orbitron">Orbitron</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Trebuchet MS">Trebuchet MS</option>
+                        </select>
+                        <select id="editor-size-select" title="Size">
+                            <option value="1">Small</option>
+                            <option value="3" selected>Normal</option>
+                            <option value="5">Large</option>
+                            <option value="7">Huge</option>
+                        </select>
+                        <button id="editor-bold-btn" title="Bold"><b>B</b></button>
+                        <button id="editor-italic-btn" title="Italic"><i>I</i></button>
+                        <button id="editor-underline-btn" title="Underline"><u>U</u></button>
+                        <button id="editor-strike-btn" title="Strikethrough"><s>S</s></button>
+                        <input type="color" id="editor-color-btn" title="Text Color" value="#e0e0e0">
+                        <input type="color" id="editor-bg-btn" title="Background Color" value="#000000">
+                        <button id="editor-link-btn" title="Insert Link">🔗</button>
+                        <button id="editor-align-left-btn" title="Align Left">⬅️</button>
+                        <button id="editor-align-center-btn" title="Align Center">⬛</button>
+                        <button id="editor-align-right-btn" title="Align Right">➡️</button>
+                        <button id="editor-list-btn" title="Bullet List">•</button>
+                    </div>
+                    <div id="post-content-editable" class="post-content-editable" contenteditable="true" data-placeholder="What's on your mind?" data-key="postContentPlaceholder"></div>
+                </div>
+                <div id="image-preview-container" style="display: none;"></div>
+                <div class="post-modal-actions">
+                    <input type="file" id="image-file-input" accept="image/*" style="display: none;">
+                    <button id="attach-image-btn" class="menu-button secondary" data-key="attachImage">Attach Image</button>
+                    <div id="image-upload-loader" style="display: none;" data-key="uploading">Uploading...</div>
+                    <button id="post-submit-btn" class="menu-button" data-key="post">Post</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <div id="post-detail-modal" class="modal-container" style="display: none;">
+        <div class="modal-content post-detail-modal">
+            <div class="modal-header">
+                <h2>Post Details</h2>
+                <button id="close-post-detail-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="post-detail-content"></div>
+                <div class="comments-section">
+                    <h4 data-key="comments">Comments</h4>
+                    <div id="post-detail-comments-list"></div>
+                    <div class="add-comment-area">
+                        <input type="text" id="comment-input" placeholder="Add a comment..." data-key="addCommentPlaceholder">
+                        <button id="add-comment-btn" data-key="send">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notifications-modal" class="modal-container" style="display: none;">
+        <div class="modal-content notifications-modal">
+            <div class="modal-header">
+                <h2 data-key="notifications">Notifications</h2>
+                <button id="close-notifications-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="notifications-list" class="community-feed">
+                    <!-- Posts from followed users appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="report-modal" class="modal-container" style="display: none;">
+        <div class="modal-content report-modal">
+            <div class="modal-header">
+                <h2 data-key="reportPost">Report Post</h2>
+                <button id="close-report-modal-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Explain what's wrong with this post:</p>
+                <textarea id="report-reason-input" placeholder="Describe the issue..." rows="5"></textarea>
+                <button id="submit-report-btn" class="menu-button">Submit Report</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="reports-viewer-modal" class="modal-container" style="display: none;">
+        <div class="modal-content reports-viewer-modal">
+            <div class="modal-header">
+                <h2>Reports Management</h2>
+                <button id="close-reports-viewer-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="reports-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mods-screen" class="menu-container" style="display: none;">
+        <div class="mods-layout">
+            <div class="mods-header">
+                <button id="mods-back-btn" class="menu-button secondary" data-key="back">Back</button>
+                <h1 class="menu-title" data-key="modsTitle">Mods Workshop</h1>
+                <button id="create-mod-btn" class="menu-button" data-key="createMod">Create Mod</button>
+            </div>
+            <div class="mods-content">
+                <div class="mods-sidebar">
+                    <h3 data-key="installedMods">Installed Mods</h3>
+                    <ul id="installed-mods-list"></ul>
+                </div>
+                <div class="mods-main">
+                    <div id="mods-browser">
+                        <h2 data-key="browseMods">Browse Mods</h2>
+                        <div id="mods-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mod-editor-modal" class="modal-container" style="display: none;">
+        <div class="modal-content mod-editor-content">
+            <div class="modal-header">
+                <h2 data-key="modEditor">Mod Editor</h2>
+                <button id="close-mod-editor-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body mod-editor-body">
+                <div class="mod-editor-sidebar">
+                    <button class="editor-tab active" data-tab="info">📋 Info</button>
+                    <button class="editor-tab" data-tab="logic">⚙️ Logic</button>
+                    <button class="editor-tab" data-tab="commands">💬 Commands</button>
+                    <button class="editor-tab" data-tab="events">⚡ Events</button>
+                    <button class="editor-tab" data-tab="ui">🎨 UI</button>
+                    <button class="editor-tab" data-tab="code">📝 Code</button>
+                    <button class="editor-tab" data-tab="variables">📊 Variables</button>
+                    <button class="editor-tab" data-tab="assets">🖼️ Assets</button>
+                    <button class="editor-tab" data-tab="templates">📚 Templates</button>
+                    <button class="editor-tab" data-tab="testing">🧪 Testing</button>
+                    <button class="editor-tab" data-tab="snippets">✂️ Snippets</button>
+                    <button class="editor-tab" data-tab="documentation">📖 Docs</button>
+                </div>
+                <div class="mod-editor-main">
+                    <div id="editor-tab-info" class="editor-tab-content active">
+                        <h3>Mod Information</h3>
+                        <input type="text" id="mod-name-input" placeholder="Mod Name" class="admin-input">
+                        <textarea id="mod-description-input" placeholder="Mod Description" class="admin-textarea"></textarea>
+                        <input type="text" id="mod-author-input" placeholder="Author" class="admin-input">
+                        <input type="text" id="mod-version-input" placeholder="Version (1.0.0)" class="admin-input">
+                    </div>
+                    <div id="editor-tab-logic" class="editor-tab-content">
+                        <h3>Visual Logic Editor</h3>
+                        <div class="logic-canvas-container">
+                            <div class="logic-toolbar">
+                                <button class="logic-tool-btn" data-node="trigger">🎯 Trigger</button>
+                                <button class="logic-tool-btn" data-node="condition">❓ Condition</button>
+                                <button class="logic-tool-btn" data-node="action">⚡ Action</button>
+                                <button class="logic-tool-btn" data-node="variable">📊 Variable</button>
+                                <button class="logic-tool-btn" data-node="ai">🤖 AI</button>
+                                <button class="logic-tool-btn" data-node="loop">🔁 Loop</button>
+                                <button class="logic-tool-btn" data-node="math">➗ Math</button>
+                                <button class="logic-tool-btn" data-node="string">📝 String</button>
+                                <button class="logic-tool-btn" data-node="array">📋 Array</button>
+                                <button class="logic-tool-btn" data-node="random">🎲 Random</button>
+                                <button class="logic-tool-btn" data-node="delay">⏱️ Delay</button>
+                                <button class="logic-tool-btn" data-node="webhook">🌐 Webhook</button>
+                                <button class="logic-tool-btn" data-node="database">💾 Database</button>
+                                <button class="logic-tool-btn" data-node="filter">🔍 Filter</button>
+                                <button class="logic-tool-btn" data-node="map">🗺️ Map</button>
+                            </div>
+                            <div id="logic-canvas" class="logic-canvas"></div>
+                        </div>
+                    </div>
+                    <div id="editor-tab-commands" class="editor-tab-content">
+                        <h3>Custom Commands</h3>
+                        <button id="add-command-btn" class="form-secondary-btn">+ Add Command</button>
+                        <div id="commands-list"></div>
+                    </div>
+                    <div id="editor-tab-events" class="editor-tab-content">
+                        <h3>Event Handlers</h3>
+                        <div class="events-list">
+                            <div class="event-handler">
+                                <label>On Message Sent</label>
+                                <textarea class="event-code" placeholder="// Your code here"></textarea>
+                            </div>
+                            <div class="event-handler">
+                                <label>On User Join</label>
+                                <textarea class="event-code" placeholder="// Your code here"></textarea>
+                            </div>
+                            <div class="event-handler">
+                                <label>On User Leave</label>
+                                <textarea class="event-code" placeholder="// Your code here"></textarea>
+                            </div>
+                            <div class="event-handler">
+                                <label>On Channel Change</label>
+                                <textarea class="event-code" placeholder="// Your code here"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="editor-tab-ui" class="editor-tab-content">
+                        <h3>Custom UI Elements</h3>
+                        <button id="add-ui-element-btn" class="form-secondary-btn">+ Add UI Element</button>
+                        <div id="ui-elements-list"></div>
+                    </div>
+                    <div id="editor-tab-code" class="editor-tab-content">
+                        <h3>Advanced Code Editor</h3>
+                        <textarea id="mod-code-editor" class="code-editor" placeholder="// Write your JavaScript code here&#x0A;// You have access to:&#x0A;// - participants, channels, player from state.js&#x0A;// - All functions from other modules&#x0A;&#x0A;export function init() {&#x0A;  console.log('Mod initialized!');&#x0A;}"></textarea>
+                    </div>
+                    <div id="editor-tab-variables" class="editor-tab-content">
+                        <!-- Variables tab content will be rendered here -->
+                    </div>
+                    <div id="editor-tab-assets" class="editor-tab-content">
+                        <!-- Assets tab content will be rendered here -->
+                    </div>
+                    <div id="editor-tab-templates" class="editor-tab-content">
+                        <!-- Templates tab content will be rendered here -->
+                    </div>
+                    <div id="editor-tab-testing" class="editor-tab-content">
+                        <!-- Testing tab content will be rendered here -->
+                    </div>
+                    <div id="editor-tab-snippets" class="editor-tab-content">
+                        <!-- Snippets tab content will be rendered here -->
+                    </div>
+                    <div id="editor-tab-documentation" class="editor-tab-content">
+                        <!-- Documentation tab content will be rendered here -->
+                    </div>
+                </div>
+            </div>
+            <div class="mod-editor-footer">
+                <button id="test-mod-btn" class="menu-button secondary">🧪 Test Mod</button>
+                <button id="save-mod-btn" class="menu-button">💾 Save Mod</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="mod-detail-modal" class="modal-container" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="mod-detail-title">Mod Details</h2>
+                <button id="close-mod-detail-btn" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="mod-detail-content"></div>
+                <div class="mod-actions">
+                    <button id="install-mod-btn" class="menu-button">Install</button>
+                    <button id="edit-mod-btn" class="menu-button secondary">Edit</button>
+                    <button id="delete-mod-btn" class="menu-button secondary" style="background: #dc3545;">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-screen" style="display: none;">
+        <div class="loader"></div>
+        <p data-key="loadingGame">Loading Game...</p>
+    </div>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
+            "gsap": "https://unpkg.com/gsap@3.12.5/index.js"
+        }
+    }
+    </script>
+    <script type="module" src="script.js"></script>
+    <script type="module" src="chat.js"></script>
+    <script type="module" src="state.js"></script>
+    <script type="module" src="user.js"></script>
+    <script type="module" src="channel.js"></script>
+    <script type="module" src="message.js"></script>
+    <script type="module" src="bot.js"></script>
+    <script type="module" src="admin.js"></script>
+    <script type="module" src="settings.js"></script>
+    <script type="module" src="community.js"></script>
+    <script type="module" src="mods.js"></script>
+</body>
+</html>
